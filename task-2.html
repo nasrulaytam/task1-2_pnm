@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script>
+const products = [
+  {
+    id: 1,
+    name: "Reksa Dana Faaza",
+    detail: [
+      {
+        id: 1,
+        price: 1005.20,
+        date: "2022-08-15"
+      },
+      {
+        id: 2,
+        price: 1005.80,
+        date: "2022-08-16"
+      },
+      {
+        id: 3,
+        price: 1006.50,
+        date: "2022-08-18"
+      },
+    ]
+  },
+  {
+    id: 2,
+    name: "Reksa Dana SBN",
+    detail: [
+      {
+        id: 1,
+        price: 1203.10,
+        date: "2022-08-15"
+      },
+      {
+        id: 2,
+        price: 1202.30,
+        date: "2022-08-16"
+      },
+      {
+        id: 3,
+        price: 1204.70,
+        date: "2022-08-18"
+      },
+    ]
+  },
+  {
+    id: 3,
+    name: "Reksa Dana Agresif",
+    detail: [
+      {
+        id: 1,
+        price: 890.44,
+        date: "2022-08-15"
+      },
+      {
+        id: 2,
+        price: 885.12,
+        date: "2022-08-16"
+      },
+      {
+        id: 3,
+        price: 894.29,
+        date: "2022-08-18"
+      },
+    ]
+  }
+]
+
+let payloadInvestor = [
+  {
+    money : 2000000,
+    buyDate: "2022-08-15",
+    buyTime: "10:00",
+    productId : 2,
+    isWorkingDay: true,
+    name: "A"
+  },
+  {
+    money : 10000000,
+    buyDate: "2022-08-15",
+    buyTime: "14:00",
+    productId : 3,
+    isWorkingDay: true,
+    name: "B"
+  },
+  {
+    money : 3500000,
+    buyDate: "2022-08-17",
+    buyTime: "08:00",
+    productId : 2,
+    isWorkingDay: false,
+    name: "C"
+  },
+]
+
+const cutOff = "13:00";
+const openDay = "20:00";
+let currentNab;
+let lastNabOfTheWeek;
+
+let totalUnitPenyertaan;
+let investValue;
+
+function formatDate(date) {
+    var d = new Date(date),
+        month = '' + (d.getMonth() + 1),
+        day = '' + d.getDate(),
+        year = d.getFullYear();
+
+    if (month.length < 2) 
+        month = '0' + month;
+    if (day.length < 2) 
+        day = '0' + day;
+
+    return [year, month, day].join('-');
+}
+
+const formatRupiah = (money) => {
+   return new Intl.NumberFormat('id-ID',
+     { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }
+   ).format(money);
+}
+
+const hitungUnitPenyertaan = (payload) => {
+  const product = products.find(item => item.id === payload.productId)
+  if(payload.isWorkingDay){
+    if(payload.buyTime < cutOff){
+      const productDetail =product.detail.find(x => x.date === payload.buyDate)
+      currentNab = productDetail.price
+    } else {
+      let tomorrowDate = new Date(payload.buyDate);
+      tomorrowDate.setDate(tomorrowDate.getDate() + 1)
+      tomorrowDate = formatDate(tomorrowDate)
+      const productDetail =product.detail.find(x => x.date === tomorrowDate)
+      currentNab = productDetail.price
+    }
+  } else {
+    // Untuk hari libur
+    let tomorrowDate = new Date(payload.buyDate);
+      tomorrowDate.setDate(tomorrowDate.getDate() + 1)
+      tomorrowDate = formatDate(tomorrowDate)
+      const productDetail =product.detail.find(x => x.date === tomorrowDate)
+      currentNab = productDetail.price
+  }
+  
+     totalUnitPernyataan = payload.money / currentNab
+     console.log(`Total Unit Pernyataan investor ${payload.name} = ${totalUnitPernyataan}`)
+}
+
+const totalInvestasi = (payload) => {
+  const product = products.find(item => item.id === payload.productId)
+  const lastArray = product.detail.length - 1
+  investValue = totalUnitPernyataan * product.detail[lastArray].price
+  return console.log(`Total investasi investor ${payload.name} = Rp. ${formatRupiah(parseInt(investValue))}`)
+}
+
+payloadInvestor.map(x => {
+  hitungUnitPenyertaan(x)
+  totalInvestasi(x)
+})
+    </script>
+</body>
+</html>
